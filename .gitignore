@@ -1,0 +1,7 @@
+﻿/bin
+/obj
+*.xlsx
+*.zip
+*.log
+/External
+.DS_Store
