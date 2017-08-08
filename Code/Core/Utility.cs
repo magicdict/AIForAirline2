@@ -10,7 +10,6 @@ namespace AIForAirline
     {
 
         public static bool IsMac = false;
-
         //调试模式
         public static bool IsDebugMode = true;
         //打印详细调试信息
@@ -24,6 +23,19 @@ namespace AIForAirline
         public const int DelayDemasticMaxMinute = 24 * 60;
         //国际航班最大延迟时间
         public const int DelayInternationalMaxMinute = 36 * 60;
+        //5月6日16点换机分数
+        public static DateTime TyphoonStartTime = new DateTime(2017, 5, 6, 16, 0, 0);
+        //起飞时刻位于5月6日06:00-5月8日24:00之间才能调整
+        //5月8日24:00 -> 5月9日00:00
+        public static DateTime RecoverStart = new DateTime(2017, 5, 6, 6, 0, 0);
+        public static DateTime RecoverEnd = new DateTime(2017, 5, 9, 0, 0, 0);
+
+
+        //特限定起飞或者降落受影响的机场在5月6日16:00前一小时，5月7日17:00后两小时，每5分钟内仅允许2个航班起飞和降落
+        public static DateTime UnitTimeLimitBeforeTyphoonStart = new DateTime(2017, 5, 6, 15, 0, 0);
+        public static DateTime UnitTimeLimitBeforeTyphoonEnd = new DateTime(2017, 5, 6, 16, 0, 0);
+        public static DateTime UnitTimeLimitAfterTyphoonStart = new DateTime(2017, 5, 7, 17, 0, 0);
+        public static DateTime UnitTimeLimitAfterTyphoonEnd = new DateTime(2017, 5, 7, 19, 0, 0);
 
         //日期分隔符
         public static string DateSplitChar = "/";
@@ -93,7 +105,6 @@ namespace AIForAirline
         public static string FormatDate(string rawValue)
         {
             //2016-6-15 -> 2016-06-15
-
             string Year = rawValue.Split(DateSplitChar.ToCharArray())[0];
             string Month = int.Parse(rawValue.Split(DateSplitChar.ToCharArray())[1]).ToString("D2");
             string Day = int.Parse(rawValue.Split(DateSplitChar.ToCharArray())[2]).ToString("D2");

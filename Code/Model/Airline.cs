@@ -193,9 +193,7 @@ namespace AIForAirline
         {
             get
             {
-                //起飞时刻位于5月6日06:00-5月8日24:00之间才能调整
-                //5月8日24:00 -> 5月9日00:00
-                return StartTime >= new DateTime(2017, 5, 6, 6, 0, 0) && StartTime <= new DateTime(2017, 5, 9, 0, 0, 0);
+                return StartTime >= Utility.RecoverStart && StartTime <= Utility.RecoverEnd;
             }
         }
 
@@ -204,10 +202,38 @@ namespace AIForAirline
         {
             get
             {
-                return SeatCnt - GuestCnt - CombinedVoyageGuestCnt;
+                //座位数 - 旅客数 - 联程旅客数 - 签转旅客数（转入） 
+                return SeatCnt - GuestCnt - CombinedVoyageGuestCnt - ReceiveTransList.Sum(x => x.GuestCnt);
             }
         }
 
+        //中转列表(转出)
+        public List<TransInfo> SendTransList = new List<TransInfo>();
+        //中转列表(转入)
+        public List<TransInfo> ReceiveTransList = new List<TransInfo>();
+
+        //中转信息
+        public struct TransInfo
+        {
+            //航班
+            public string AirlineID;
+            //人数
+            public int GuestCnt;
+            //ToString
+            public override string ToString()
+            {
+                return AirlineID + ":" + GuestCnt;
+            }
+        }
+
+        //如果取消该航班，同时发生签转，实际取消人数
+        public int CancelGuestCnt
+        {
+            get
+            {
+                return GuestCnt + CombinedVoyageGuestCnt - SendTransList.Sum(x => x.GuestCnt);
+            }
+        }
 
         public Airline() { }
         //从文本初始化
