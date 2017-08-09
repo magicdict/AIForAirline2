@@ -40,11 +40,12 @@ namespace AIForAirline
             Solution.PlaneIdAirlineDic.Clear();
             Solution.CombinedVoyageList.Clear();
             Solution.FlyTimeDic.Clear();
+            Solution.PlaneTypeSeatCntDic.Clear();
+            Solution.TransTimeList.Clear();
             CheckCondition.AirPortProhibitList.Clear();
             CheckCondition.PlaneProhibitList.Clear();
             CheckCondition.TyphoonList.Clear();
             CheckCondition.TyphoonAirport.Clear();
-            CheckCondition.TransTimeList.Clear();
             var timer = new Stopwatch();
             timer.Start();
             Utility.Log("Start Run AIForAirline...");

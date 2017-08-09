@@ -168,8 +168,6 @@ namespace AIForAirline
             return true;
         }
 
-        public static List<TransTime> TransTimeList = new List<TransTime>();
-
         //故障表
         public static List<Typhoon> TyphoonList = new List<Typhoon>();
         //台风机场列表

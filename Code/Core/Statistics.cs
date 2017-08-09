@@ -93,7 +93,7 @@ namespace AIForAirline
                         //直接取消
                         result.CancelAirlineCnt += airline.ImportFac;
                         outputline[6] = "1"; //是否取消
-                        result.CancelGuestCnt += airline.CancelGuestCnt;
+                        result.CancelGuestCnt += airline.CancelUnAssignedGuestCnt;   //已经去除签转的人
                         break;
                     case enmFixMethod.Direct:
                         var combinedAirline = airline.ComboAirline;
@@ -123,6 +123,18 @@ namespace AIForAirline
                     outputline[9] = "1"; //是否拉直
                     outputline[10] = string.Join("&", airline.SendTransList);
                 }
+                //如果有签转（入），计算延误值
+                if (airline.ReceiveTransList.Count != 0)
+                {
+                    foreach (var transinfo in airline.ReceiveTransList)
+                    {
+                        var orgStartTime = Solution.AirlineDic[transinfo.AirlineID].StartTime;
+                        if (orgStartTime == airline.ModifiedStartTime) continue;                  //签转和原航班时间一致，小概率事件
+                        //签转一定是延期的
+                        result.DelayGuestTotal += GetTransDelayPerGuestParm(airline.ModifiedStartTime.Subtract(orgStartTime).TotalHours) * transinfo.GuestCnt;
+                    }
+                }
+
                 if (airline.IsChangeStartTime && (airline.FixMethod == enmFixMethod.UnFixed || airline.FixMethod == enmFixMethod.Direct))
                 {
                     //联程拉直后的航班，统计拉直的时候是两者系数之和；统计提前，延误，换机按照第一个航班来算
@@ -133,14 +145,11 @@ namespace AIForAirline
                         result.TotalDelayHours += (Diff * airline.ImportFac);
                         //旅客延迟（非签转）
                         result.DelayGuestTotal += GetDelayPerGuestParm(Diff) * (airline.GuestCnt + airline.CombinedVoyageGuestCnt);
-                        //TODO：旅客延迟（签转）
                     }
                     else
                     {
                         //提早(Diff是负数，这里用减法)
                         result.TotalEarlyHours -= (Diff * airline.ImportFac);
-                        //TODO：旅客延迟（签转），航班提前，但是不等于签转的旅客也提前
-
                     }
                 }
                 if (airline.ModifiedPlaneID != airline.PlaneID)

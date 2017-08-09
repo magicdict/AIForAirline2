@@ -26,18 +26,25 @@ namespace AIForAirline
         public DateTime EndTime;
         //飞机ID
         public string PlaneID;
+        //修改后的飞机ID
+        public string ModifiedPlaneID;
+
         //机型
         public string PlaneType;
 
-        //修改后的飞机ID
-        public string ModifiedPlaneID;
+        public string ModifiedPlaneType;
 
         public int GuestCnt;
 
         public int CombinedVoyageGuestCnt;
 
-        public int SeatCnt;
-
+        public int SeatCnt
+        {
+            get
+            {
+                return Solution.PlaneTypeSeatCntDic[ModifiedPlaneType];
+            }
+        }
 
         //重要系数(空缺时默认是1.0)
         public double ImportFac;
@@ -212,6 +219,25 @@ namespace AIForAirline
         //中转列表(转入)
         public List<TransInfo> ReceiveTransList = new List<TransInfo>();
 
+        //如果取消该航班，同时发生签转，实际未安排人数
+        public int CancelUnAssignedGuestCnt
+        {
+            get
+            {
+                return GuestCnt + CombinedVoyageGuestCnt - SendTransList.Sum(x => x.GuestCnt);
+            }
+        }
+
+        //如果换机型，同时发生签转，实际未安排人数
+        public int PlaneChangeUnAssignedGuestCnt
+        {
+            get
+            {
+                if (SeatCnt >= GuestCnt) return 0;
+                return GuestCnt - SeatCnt - SendTransList.Sum(x => x.GuestCnt);
+            }
+        }
+
         //中转信息
         public struct TransInfo
         {
@@ -223,15 +249,6 @@ namespace AIForAirline
             public override string ToString()
             {
                 return AirlineID + ":" + GuestCnt;
-            }
-        }
-
-        //如果取消该航班，同时发生签转，实际取消人数
-        public int CancelGuestCnt
-        {
-            get
-            {
-                return GuestCnt + CombinedVoyageGuestCnt - SendTransList.Sum(x => x.GuestCnt);
             }
         }
 
@@ -251,9 +268,11 @@ namespace AIForAirline
             PlaneID = RawDataArray[8];
             ModifiedPlaneID = PlaneID;
             PlaneType = RawDataArray[9];
+            ModifiedPlaneType = PlaneType;
             GuestCnt = int.Parse(RawDataArray[10]);
             CombinedVoyageGuestCnt = int.Parse(RawDataArray[11]);
-            SeatCnt = int.Parse(RawDataArray[12]);
+            //座位数根据机型获得
+            //SeatCnt = int.Parse(RawDataArray[12]);
             ImportFac = double.Parse(RawDataArray[13]);
             Problem = null;
             PreviousAirline = null;

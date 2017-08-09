@@ -5,10 +5,10 @@ namespace AIForAirline
     //飞机限制表
     public struct TransTime
     {
-        //起飞机场
-        public string StartAirPort;
-        //到达机场
-        public string EndAirPort;
+        //进港航班ID
+        public string LandAirlineID;
+        //出港航班ID
+        public string TakeOffAirlineID;
         //中转时间
         public int TransferTime;
 
@@ -17,8 +17,8 @@ namespace AIForAirline
         public TransTime(string RawData)
         {
             var RawDataArray = RawData.Split(",".ToCharArray());
-            StartAirPort = RawDataArray[0];
-            EndAirPort = RawDataArray[1];
+            LandAirlineID = RawDataArray[0];
+            TakeOffAirlineID = RawDataArray[1];
             TransferTime = int.Parse(RawDataArray[2]);
             GuestCnt =int.Parse(RawDataArray[3]);
         }

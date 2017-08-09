@@ -21,13 +21,18 @@ namespace AIForAirline
         //国内机场列表
         public static List<string> DomaticAirport = new List<string>();
         public static Dictionary<string, List<string>> PlaneTypeDic = new Dictionary<string, List<string>>();
-
+        //计划航班机型字典
         public static Dictionary<string, string> PlaneTypeSearchDic = new Dictionary<string, string>();
+        //机型座位数字典
+        public static Dictionary<string, int> PlaneTypeSeatCntDic = new Dictionary<string, int>();
+
+        public static List<TransTime> TransTimeList = new List<TransTime>();
 
         //读取CSV文件
         public static void ReadCSV()
         {
             StreamReader reader = null;
+            //飞行表
             if (File.Exists(Utility.FlyTimeCSV))
             {
                 reader = new StreamReader(Utility.FlyTimeCSV);
@@ -55,6 +60,8 @@ namespace AIForAirline
                 var airline = new Airline(reader.ReadLine());
                 AirlineList.Add(airline);
                 AirlineDic.Add(airline.ID, airline);
+                if (!PlaneTypeSeatCntDic.ContainsKey(airline.PlaneType))
+                    PlaneTypeSeatCntDic.Add(airline.PlaneType, airline.SeatCnt);
             }
             reader.Close();
             var SameComboAirKey = AirlineList.GroupBy((x) => { return x.ComboAirLineKey; });
@@ -139,10 +146,10 @@ namespace AIForAirline
                 while (!reader.EndOfStream)
                 {
 
-                    CheckCondition.TransTimeList.Add(new TransTime(reader.ReadLine()));
+                    TransTimeList.Add(new TransTime(reader.ReadLine()));
                 }
                 reader.Close();
-                Utility.Log("旅客中转时间限制数:" + CheckCondition.TransTimeList.Count);
+                Utility.Log("旅客中转时间限制数:" + TransTimeList.Count);
             }
 
             if (File.Exists(Utility.AirportCSV))

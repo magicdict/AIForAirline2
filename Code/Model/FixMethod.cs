@@ -12,8 +12,6 @@ namespace AIForAirline
         Cancel,
         //调机
         EmptyFly,
-        //是否签转
-        Transfer,
         //未修复
         UnFixed
     }

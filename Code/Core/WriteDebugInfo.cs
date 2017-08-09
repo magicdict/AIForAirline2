@@ -7,7 +7,7 @@ namespace AIForAirline
 {
     public partial class Statistics
     {
-        internal static void WriteDebugInfo(List<Airline> airlineList)
+        public static void WriteDebugInfo(List<Airline> airlineList)
         {
             airlineList.AddRange(CoreAlgorithm.EmptyFlyList);
             airlineList.Sort((x, y) =>

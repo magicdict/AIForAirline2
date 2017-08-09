@@ -5,3 +5,5 @@
 *.log
 /External
 .DS_Store
+.vs
+.vscode
