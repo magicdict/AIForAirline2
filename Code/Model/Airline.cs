@@ -195,6 +195,9 @@ namespace AIForAirline
             }
         }
 
+
+        public bool IsUseTyphoonRoom;
+
         //恢复窗口限制
         public bool IsAllowAdjust
         {

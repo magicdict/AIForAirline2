@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -73,12 +74,29 @@ namespace AIForAirline
                 }
 
                 //恢复航班
+                Utility.IsUseTyphoonStayRoom = false;
+                var UnFix = new List<string>();
                 Parallel.ForEach(Solution.PlaneIdAirlineDic.Keys, PlaneIdAirlineKey =>
                 {
                     var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneIdAirlineKey];
                     if (!Solution.FixAirline(PlaneAirlineList).IsOK)
+                    {
+                        UnFix.Add(PlaneIdAirlineKey);
                         System.Console.WriteLine("无法修复的飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
+                    }
                 });
+                System.Console.WriteLine("启用停机库");
+                Utility.IsUseTyphoonStayRoom = true;
+                foreach (var PlaneIdAirlineKey in UnFix)
+                {
+                    var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneIdAirlineKey];
+                    if (!Solution.FixAirline(PlaneAirlineList).IsOK)
+                    {
+                        System.Console.WriteLine("无法修复的飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
+                    }else{
+                        System.Console.WriteLine("修复飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
+                    }
+                }
 
                 //签转操作无法多线程
                 foreach (var PlaneIdAirlineKey in Solution.PlaneIdAirlineDic.Keys)

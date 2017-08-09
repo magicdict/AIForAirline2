@@ -18,6 +18,20 @@ namespace AIForAirline
                 case ProblemType.TyphoonTakeOff:
                     ProblemDescript = "[台风：起飞]";
                     break;
+                case ProblemType.TyphoonStay:
+                    ProblemDescript = "[台风：停机]";
+
+                    if (CheckCondition.TyphoonAirportRemain[PlaneAirlineList[index].StartAirPort] != 0 && Utility.IsUseTyphoonStayRoom)
+                    {
+                        CheckCondition.TyphoonAirportRemain[PlaneAirlineList[index].StartAirPort]--;
+                        PlaneAirlineList[index].IsUseTyphoonRoom = true;
+                        return true;
+                    }
+                    else
+                    {
+                        Utility.Log("[无法修复]航班ID：" + PlaneAirlineList[index].ID);
+                        return false;
+                    }
                 default:
                     break;
             }

@@ -33,8 +33,6 @@ namespace AIForAirline
             }
             var AfterFixScore = Statistics.WriteResult(CloneAirline);
             Utility.Log("调整后的增加分数：" + (AfterFixScore - StandScore));
-
-
             CloneAirline = Utility.DeepCopy(PlaneAirlineList);
             first = CloneAirline[index];
             second = first.NextAirLine;

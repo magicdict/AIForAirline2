@@ -23,7 +23,7 @@ namespace AIForAirline
             });
             string filename = Utility.WorkSpaceRoot + "Result" + Path.DirectorySeparatorChar + "Debug.csv";
             var writer = new StreamWriter(filename);
-            var outputline = new string[21];
+            var outputline = new string[22];
             outputline[0] = "AirLineID";
             outputline[1] = "StartAirPort";
             outputline[2] = "EndAirPort";
@@ -45,6 +45,7 @@ namespace AIForAirline
             outputline[18] = "DiffScore";
             outputline[19] = "SendEndorsement";
             outputline[20] = "ReceiveEndorsement";
+            outputline[21] = "UseTyphoonRoom";
             writer.WriteLine(string.Join(",", outputline));
             foreach (var airline in airlineList)
             {
@@ -65,6 +66,7 @@ namespace AIForAirline
                 outputline[17] = airline.PlaneID;
                 outputline[19] = string.Join("&", airline.SendEndorseList);
                 outputline[20] = string.Join("&", airline.ReceiveEndorseList);
+                outputline[21] = airline.IsUseTyphoonRoom ? "1" : "0";
                 var Diff = airline.ModifiedStartTime.Subtract(airline.StartTime).TotalHours;
                 if (Diff > 0)
                 {

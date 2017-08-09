@@ -70,6 +70,8 @@ namespace AIForAirline
         public static bool IsEvalute = true;
 
         public static string RunAirline = string.Empty;
+        //是否使用停机库
+        public static bool IsUseTyphoonStayRoom = false;
 
         public static void Init(string root)
         {

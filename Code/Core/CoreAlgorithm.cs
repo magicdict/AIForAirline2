@@ -51,6 +51,18 @@ namespace AIForAirline
                         case ProblemType.AirLinePlaneProhibit:
                             //航班航线限制(无法修复)
                             return false;
+                        case ProblemType.TyphoonStay:
+                            if (CheckCondition.TyphoonAirportRemain[airline.StartAirPort] != 0 && Utility.IsUseTyphoonStayRoom)
+                            {
+                                CheckCondition.TyphoonAirportRemain[airline.StartAirPort]--;
+                                airline.IsUseTyphoonRoom = true;
+                            }
+                            else
+                            {
+                                Utility.Log("[无法修复]航班ID：" + airline.ID);
+                                return false;
+                            }
+                            break;
                         default:
                             //这个IsNotEnoughStayAirportTime其实不需要
                             if (problem.IsNotEnoughStayAirportTime)

@@ -99,6 +99,10 @@ namespace AIForAirline
                     var typhoon = new Typhoon(reader.ReadLine());
                     CheckCondition.TyphoonList.Add(typhoon);
                     if (!CheckCondition.TyphoonAirport.Contains(typhoon.AirPort)) CheckCondition.TyphoonAirport.Add(typhoon.AirPort);
+                    if (typhoon.TroubleType == "停机")
+                    {
+                        CheckCondition.TyphoonAirportRemain.Add(typhoon.AirPort, typhoon.StayCnt);
+                    }
                     Utility.Log(typhoon.ToString());
                 }
                 reader.Close();

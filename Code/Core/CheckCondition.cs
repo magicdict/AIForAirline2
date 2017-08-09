@@ -173,6 +173,8 @@ namespace AIForAirline
         //台风机场列表
         public static List<string> TyphoonAirport = new List<string>();
 
+        public static Dictionary<string,int> TyphoonAirportRemain = new  Dictionary<string,int>();   
+
         /// <summary>
         /// 是否存在台风故障
         /// </summary>
