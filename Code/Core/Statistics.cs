@@ -87,6 +87,7 @@ namespace AIForAirline
                 outputline[7] = "0"; //是否拉直
                 outputline[8] = "0"; //是否调机
                 outputline[9] = "0"; //是否签转
+                outputline[10] = string.Empty;
                 switch (airline.FixMethod)
                 {
                     case enmFixMethod.Cancel:
@@ -118,15 +119,15 @@ namespace AIForAirline
                         break;
                 }
                 //签转
-                if (airline.SendTransList.Count != 0)
+                if (airline.SendEndorseList.Count != 0)
                 {
                     outputline[9] = "1"; //是否拉直
-                    outputline[10] = string.Join("&", airline.SendTransList);
+                    outputline[10] = string.Join("&", airline.SendEndorseList);
                 }
                 //如果有签转（入），计算延误值
-                if (airline.ReceiveTransList.Count != 0)
+                if (airline.ReceiveEndorseList.Count != 0)
                 {
-                    foreach (var transinfo in airline.ReceiveTransList)
+                    foreach (var transinfo in airline.ReceiveEndorseList)
                     {
                         var orgStartTime = Solution.AirlineDic[transinfo.AirlineID].StartTime;
                         if (orgStartTime == airline.ModifiedStartTime) continue;                  //签转和原航班时间一致，小概率事件
@@ -191,6 +192,9 @@ namespace AIForAirline
                     outputline[6] = "0"; //是否取消
                     outputline[7] = "0"; //是否拉直
                     outputline[8] = "1"; //是否调机
+                    outputline[8] = "1"; //是否调机
+                    outputline[9] = "0"; //是否签转
+                    outputline[10] = string.Empty;
                     writer.WriteLine(string.Join(",", outputline));
                     result.EmptyFlyAirlineCnt++;
                 }
@@ -211,9 +215,10 @@ namespace AIForAirline
                     clientProcess.StartInfo.Arguments = @"-jar " + Utility.XMAEvaluationFilename + " " + Utility.DataSetXLSFilename + " " + filename;
                     clientProcess.Start();
                     clientProcess.WaitForExit();
+                    //将文件放在Java程序的调试目录，便于寻找具体错误
+                    if (File.Exists(Utility.XMAEvaluationDatasetFilename)) File.Delete(Utility.XMAEvaluationDatasetFilename);
+                    File.Copy(filename, Utility.XMAEvaluationDatasetFilename);
                 }
-                if (File.Exists(Utility.XMAEvaluationDatasetFilename)) File.Delete(Utility.XMAEvaluationDatasetFilename);
-                File.Copy(filename, Utility.XMAEvaluationDatasetFilename);
             }
             return score;
         }

@@ -14,6 +14,7 @@ namespace AIForAirline
             Utility.WriteLogToFile = false;
             Utility.PrintInfo = false;
             Utility.IsMac = false;
+            Utility.IsEvalute = false;
             if (Utility.IsMac)
             {
                 Utility.Init("/Users/hu/AIForAirline2/SecondSeason/");
@@ -52,34 +53,40 @@ namespace AIForAirline
             //读取、整理数据
             Solution.ReadCSV();
             //分析数据
-            Solution.Analyze();
+            if (false) Solution.Analyze();
             //恢复航班
             if (string.IsNullOrEmpty(PlaneID))
             {
-                foreach (var planeid in Solution.PlaneIdAirlineDic.Keys)
+                if (false)
                 {
-                    CoreAlgorithm.scoreDic.Add(planeid, Solution.FixAirline(Solution.PlaneIdAirlineDic[planeid], true).Score);
-                }
-                Console.WriteLine("当前温度：" + CoreAlgorithm._currentTemperature);
-                do
-                {
-                    CoreAlgorithm.CheckExchangableAirline();
-                    Solution.GetAirlineDicByPlaneId();
+                    foreach (var planeid in Solution.PlaneIdAirlineDic.Keys)
+                    {
+                        CoreAlgorithm.scoreDic.Add(planeid, Solution.FixAirline(Solution.PlaneIdAirlineDic[planeid], true).Score);
+                    }
                     Console.WriteLine("当前温度：" + CoreAlgorithm._currentTemperature);
-                } while (CoreAlgorithm._currentTemperature > 0);
-                //TODO：签转顺序问题，不同顺序可能造成满座，结果不同
+                    do
+                    {
+                        CoreAlgorithm.CheckExchangableAirline();
+                        Solution.GetAirlineDicByPlaneId();
+                        Console.WriteLine("当前温度：" + CoreAlgorithm._currentTemperature);
+                    } while (CoreAlgorithm._currentTemperature > 0);
+                }
+
+                //恢复航班
                 Parallel.ForEach(Solution.PlaneIdAirlineDic.Keys, PlaneIdAirlineKey =>
                 {
                     var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneIdAirlineKey];
-                    if (Solution.FixAirline(PlaneAirlineList).IsOK)
-                    {
-                        Solution.TransferGuest(PlaneAirlineList);
-                    }
-                    else
-                    {
-                        System.Console.WriteLine("无法修复的飞机号码：" + PlaneID);
-                    }
+                    if (!Solution.FixAirline(PlaneAirlineList).IsOK)
+                        System.Console.WriteLine("无法修复的飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
                 });
+
+                //签转操作无法多线程
+                foreach (var PlaneIdAirlineKey in Solution.PlaneIdAirlineDic.Keys)
+                {
+                    var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneIdAirlineKey];
+                    Solution.EndorseGuest(PlaneAirlineList);
+                }
+                Solution.EndorseTransferGuest();
             }
             else
             {
@@ -88,14 +95,15 @@ namespace AIForAirline
                 var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneID];
                 if (Solution.FixAirline(PlaneAirlineList).IsOK)
                 {
-                    Solution.TransferGuest(PlaneAirlineList);
+                    Solution.EndorseGuest(PlaneAirlineList);
+                    Solution.EndorseTransferGuest();
                 }
                 else
                 {
                     System.Console.WriteLine("无法修复的飞机号码：" + PlaneID);
                 }
-
             }
+            if (false) ResultOptimize.Run();
             Utility.Log("Finish!!");
             timer.Stop();
             //输出答案

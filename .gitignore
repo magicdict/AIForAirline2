@@ -4,6 +4,7 @@
 *.zip
 *.log
 /External
+/SecondSeason/Result
 .DS_Store
 .vs
 .vscode

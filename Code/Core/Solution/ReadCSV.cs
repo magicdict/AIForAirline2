@@ -60,8 +60,6 @@ namespace AIForAirline
                 var airline = new Airline(reader.ReadLine());
                 AirlineList.Add(airline);
                 AirlineDic.Add(airline.ID, airline);
-                if (!PlaneTypeSeatCntDic.ContainsKey(airline.PlaneType))
-                    PlaneTypeSeatCntDic.Add(airline.PlaneType, airline.SeatCnt);
             }
             reader.Close();
             var SameComboAirKey = AirlineList.GroupBy((x) => { return x.ComboAirLineKey; });

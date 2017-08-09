@@ -10,7 +10,7 @@ namespace AIForAirline
     public static partial class Solution
     {
         //签转处理
-        public static void TransferGuest(List<Airline> PlaneAirlineList)
+        public static void EndorseGuest(List<Airline> PlaneAirlineList)
         {
             //取消和换机人员的签转
             for (int i = 0; i < PlaneAirlineList.Count; i++)
@@ -29,6 +29,10 @@ namespace AIForAirline
                     TryTransFer(airline, NeedForTrans);
                 }
             }
+        }
+
+        public static void EndorseTransferGuest()
+        {
             //中转失败的签转
             for (int i = 0; i < TransTimeList.Count; i++)
             {
@@ -45,6 +49,7 @@ namespace AIForAirline
         //进行签转
         private static void TryTransFer(Airline airline, int NeedForTrans)
         {
+            //TODO：签转顺序问题，不同顺序可能造成满座，结果不同
             foreach (var targetAirline in Solution.AirlineDic.Values)
             {
                 if (targetAirline.StartAirPort != airline.StartAirPort ||
@@ -57,12 +62,12 @@ namespace AIForAirline
                 if (targetAirline.ModifiedStartTime.Subtract(airline.StartTime).TotalMinutes > Utility.DelayInternationalMaxMinute) continue;
                 if (targetAirline.EmptySeatCnt >= NeedForTrans)
                 {
-                    targetAirline.ReceiveTransList.Add(new Airline.TransInfo()
+                    targetAirline.ReceiveEndorseList.Add(new Airline.EndorseInfo()
                     {
                         AirlineID = airline.ID,
                         GuestCnt = NeedForTrans
                     });
-                    airline.SendTransList.Add(new Airline.TransInfo()
+                    airline.SendEndorseList.Add(new Airline.EndorseInfo()
                     {
                         AirlineID = targetAirline.ID,
                         GuestCnt = NeedForTrans
@@ -73,16 +78,17 @@ namespace AIForAirline
                 {
                     //EmptySeatCnt是计算属性，所以这里必须使用变量
                     var transCnt = targetAirline.EmptySeatCnt;
-                    targetAirline.ReceiveTransList.Add(new Airline.TransInfo()
+                    targetAirline.ReceiveEndorseList.Add(new Airline.EndorseInfo()
                     {
                         AirlineID = airline.ID,
                         GuestCnt = transCnt
                     });
-                    airline.SendTransList.Add(new Airline.TransInfo()
+                    airline.SendEndorseList.Add(new Airline.EndorseInfo()
                     {
                         AirlineID = targetAirline.ID,
                         GuestCnt = transCnt
                     });
+                    NeedForTrans -= transCnt;
                 }
             }
         }

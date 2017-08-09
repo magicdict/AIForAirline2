@@ -210,21 +210,21 @@ namespace AIForAirline
             get
             {
                 //座位数 - 旅客数 - 联程旅客数 - 签转旅客数（转入） 
-                return SeatCnt - GuestCnt - CombinedVoyageGuestCnt - ReceiveTransList.Sum(x => x.GuestCnt);
+                return SeatCnt - GuestCnt - CombinedVoyageGuestCnt - ReceiveEndorseList.Sum(x => x.GuestCnt);
             }
         }
 
         //中转列表(转出)
-        public List<TransInfo> SendTransList = new List<TransInfo>();
+        public List<EndorseInfo> SendEndorseList = new List<EndorseInfo>();
         //中转列表(转入)
-        public List<TransInfo> ReceiveTransList = new List<TransInfo>();
+        public List<EndorseInfo> ReceiveEndorseList = new List<EndorseInfo>();
 
         //如果取消该航班，同时发生签转，实际未安排人数
         public int CancelUnAssignedGuestCnt
         {
             get
             {
-                return GuestCnt + CombinedVoyageGuestCnt - SendTransList.Sum(x => x.GuestCnt);
+                return GuestCnt + CombinedVoyageGuestCnt - SendEndorseList.Sum(x => x.GuestCnt);
             }
         }
 
@@ -234,12 +234,13 @@ namespace AIForAirline
             get
             {
                 if (SeatCnt >= GuestCnt) return 0;
-                return GuestCnt - SeatCnt - SendTransList.Sum(x => x.GuestCnt);
+                return GuestCnt - SeatCnt - SendEndorseList.Sum(x => x.GuestCnt);
             }
         }
 
         //中转信息
-        public struct TransInfo
+        [Serializable]
+        public struct EndorseInfo
         {
             //航班
             public string AirlineID;
@@ -272,7 +273,8 @@ namespace AIForAirline
             GuestCnt = int.Parse(RawDataArray[10]);
             CombinedVoyageGuestCnt = int.Parse(RawDataArray[11]);
             //座位数根据机型获得
-            //SeatCnt = int.Parse(RawDataArray[12]);
+            if (!Solution.PlaneTypeSeatCntDic.ContainsKey(PlaneType))
+                Solution.PlaneTypeSeatCntDic.Add(PlaneType, int.Parse(RawDataArray[12]));
             ImportFac = double.Parse(RawDataArray[13]);
             Problem = null;
             PreviousAirline = null;
