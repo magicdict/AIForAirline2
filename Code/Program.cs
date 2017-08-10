@@ -93,7 +93,9 @@ namespace AIForAirline
                     if (!Solution.FixAirline(PlaneAirlineList).IsOK)
                     {
                         System.Console.WriteLine("无法修复的飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
-                    }else{
+                    }
+                    else
+                    {
                         System.Console.WriteLine("修复飞机号码：" + PlaneAirlineList[0].ModifiedPlaneID);
                     }
                 }
@@ -110,6 +112,7 @@ namespace AIForAirline
             {
                 //针对航班测试用
                 Utility.IsEvalute = false;
+                Utility.IsUseTyphoonStayRoom = false;
                 var PlaneAirlineList = Solution.PlaneIdAirlineDic[PlaneID];
                 if (Solution.FixAirline(PlaneAirlineList).IsOK)
                 {
@@ -118,7 +121,11 @@ namespace AIForAirline
                 }
                 else
                 {
-                    System.Console.WriteLine("无法修复的飞机号码：" + PlaneID);
+                    Utility.IsUseTyphoonStayRoom = true;
+                    if (!Solution.FixAirline(PlaneAirlineList).IsOK)
+                    {
+                        System.Console.WriteLine("无法修复的飞机号码：" + PlaneID);
+                    }
                 }
             }
             if (false) ResultOptimize.Run();

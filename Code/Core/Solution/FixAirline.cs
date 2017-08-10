@@ -12,6 +12,13 @@ namespace AIForAirline
     {
         public static (bool IsOK, double Score) FixAirline(List<Airline> PlaneAirlineList, bool IsTry = false)
         {
+            //停机库的备份
+            var CloneTyphoonAirportRemain = Utility.DeepCopy(CheckCondition.TyphoonAirportRemain);
+            //多线程，防止出现异常循环体内外写不同的变量
+            foreach (var airport in CloneTyphoonAirportRemain.Keys)
+            {
+                CheckCondition.TyphoonAirportRemain[airport] = 999;
+            }
             //复杂调整
             var PlaneAirlineListCloneComplexAdjust = Utility.DeepCopy(PlaneAirlineList);
             var ScoreComplexAdjust = double.MaxValue;
@@ -93,10 +100,12 @@ namespace AIForAirline
             MinScore = Math.Min(ScoreConvertToEmpty, MinScore);
             MinScore = Math.Min(ScoreEmptyAdvanced, MinScore);
             MinScore = Math.Min(ScoreCancelSomeSection, MinScore);
-
             if (IsTry) return (MinScore != double.MaxValue, MinScore);
-
-            //Console.WriteLine("PlaneID:" + PlaneAirlineList[0].ModifiedPlaneID + "," + MinScore);
+            CheckCondition.TyphoonAirportRemain = CloneTyphoonAirportRemain;
+            if (Utility.IsUseTyphoonStayRoom)
+            {
+                Console.WriteLine("PlaneID:" + PlaneAirlineList[0].ModifiedPlaneID + "," + MinScore);
+            }
 
             if (Math.Round(MinScore, 0) == Math.Round(ScoreComplexAdjust, 0))
             {

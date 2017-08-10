@@ -85,6 +85,11 @@ namespace AIForAirline
                                 };
                                 FixAirportProblemByChangeTakeOffTime(AirlineList, EndIndex, EmptyFly.NextAirLine);
                             }
+                            if (AirlineList[EndIndex].IsUseTyphoonRoom)
+                            {
+                                //如果降落的时候使用IsCanEmptyFly方法是用了机库，这里通过调整，使得不用到机库，退还机库
+                                CheckCondition.TyphoonAirportRemain[EmptyFly.EndAirPort]++;
+                            }
                             break;
                         }
                     }
@@ -185,12 +190,10 @@ namespace AIForAirline
                             Solution.DomaticAirport.Contains(AirlineList[st].StartAirPort))
                         {
                             //是否航班机飞机限制
-                            if (CheckCondition.IsAirlinePlaneAvalible(AirlineList[ed].StartAirPort, AirlineList[st].StartAirPort, AirlineList[0].ModifiedPlaneID))
+                            if (CheckCondition.IsAirlinePlaneAvalible(AirlineList[ed].StartAirPort, AirlineList[st].StartAirPort,
+                                AirlineList[0].ModifiedPlaneID))
                             {
-                                //防止出现空飞的上一班结束和下一班开始都是台风限制的航班，并且中间夹着起飞停机时间
-                                //前者最早起飞也无法在后者结束之后才降落，则不选
-                                if (!CheckCondition.TyphoonAirport.Contains(AirlineList[st].StartAirPort) ||
-                                    !CheckCondition.TyphoonAirport.Contains(AirlineList[ed].StartAirPort))
+                                if (IsTyphoonOK(AirlineList, st, ed))
                                 {
                                     EndIndex = ed;
                                     StartIndex = st;
@@ -203,8 +206,55 @@ namespace AIForAirline
                 }
                 if (CanEmptyFly) break;
             }
-
             return CanEmptyFly;
+        }
+
+        private static bool IsTyphoonOK(List<Airline> AirlineList, int startIndex, int endIndex)
+        {
+            //防止出现空飞的上一班结束和下一班开始都是台风限制的航班，并且中间夹着起飞停机时间
+            //前者最早起飞也无法在后者结束之后才降落，则不选
+            bool IsTyphoonOK = true;
+            //起始机场是台风机场
+            if (CheckCondition.TyphoonAirport.Contains(AirlineList[startIndex].StartAirPort))
+            {
+                if (Utility.IsUseTyphoonStayRoom)
+                {
+                    if (CheckCondition.TyphoonAirportRemain[AirlineList[startIndex].StartAirPort] != 0)
+                    {
+                        CheckCondition.TyphoonAirportRemain[AirlineList[startIndex].StartAirPort]--;
+                        AirlineList[startIndex].IsUseTyphoonRoom = true;
+                    }
+                    else
+                    {
+                        IsTyphoonOK = false;
+                    }
+                }
+                else
+                {
+                    IsTyphoonOK = false;
+                }
+            }
+            //降落机场是台风机场
+            if (CheckCondition.TyphoonAirport.Contains(AirlineList[endIndex].StartAirPort))
+            {
+                if (Utility.IsUseTyphoonStayRoom)
+                {
+                    if (CheckCondition.TyphoonAirportRemain[AirlineList[endIndex].StartAirPort] != 0)
+                    {
+                        CheckCondition.TyphoonAirportRemain[AirlineList[endIndex].StartAirPort]--;
+                        AirlineList[endIndex].IsUseTyphoonRoom = true;
+                    }
+                    else
+                    {
+                        IsTyphoonOK = false;
+                    }
+                }
+                else
+                {
+                    IsTyphoonOK = false;
+                }
+            }
+            return IsTyphoonOK;
         }
 
         static void AdjustTakeOffTime(Airline emptyfly)

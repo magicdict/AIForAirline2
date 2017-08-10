@@ -44,8 +44,24 @@ namespace AIForAirline
                             //在链式调整中，problem会被赋予航班，但是实际是没有问题的
                             if (!FixAirportProblemByChangeTakeOffTime(PlaneAirlineList, i, airline))
                             {
-                                Utility.Log("[无法修复]航班ID：" + airline.ID);
-                                return false;
+                                if (problem.DetailType == ProblemType.TyphoonLand)
+                                {
+                                    if (CheckCondition.TyphoonAirportRemain[airline.EndAirPort] != 0 && Utility.IsUseTyphoonStayRoom)
+                                    {
+                                        CheckCondition.TyphoonAirportRemain[airline.EndAirPort]--;
+                                        airline.IsUseTyphoonRoom = true;
+                                    }
+                                    else
+                                    {
+                                        Utility.Log("[无法修复]航班ID：" + airline.ID);
+                                        return false;
+                                    }
+                                }
+                                else
+                                {
+                                    Utility.Log("[无法修复]航班ID：" + airline.ID);
+                                    return false;
+                                }
                             }
                             break;
                         case ProblemType.AirLinePlaneProhibit:
