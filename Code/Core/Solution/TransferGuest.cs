@@ -17,14 +17,19 @@ namespace AIForAirline
             {
                 //寻找取消的航班
                 if (PlaneAirlineList[i].FixMethod == enmFixMethod.Cancel ||
-                    PlaneAirlineList[i].FixMethod == enmFixMethod.ChangePlane)
+                    PlaneAirlineList[i].FixMethod == enmFixMethod.ChangePlane || PlaneAirlineList[i].OverSell != 0)
                 {
                     //分析该机场的其他航班是否可以签转
                     //TODO：签转是否能够提前
                     var airline = PlaneAirlineList[i];
                     int NeedForTrans = PlaneAirlineList[i].FixMethod == enmFixMethod.Cancel ?
                                        airline.CancelUnAssignedGuestCnt : airline.PlaneChangeUnAssignedGuestCnt;
-                    if (NeedForTrans == 0) continue;
+                    if (NeedForTrans == 0)
+                    {
+                        if (airline.OverSell == 0) continue;
+                        NeedForTrans = airline.OverSell;
+                        Console.WriteLine("超售：" + NeedForTrans);
+                    }
                     //寻找同一机场起飞时间在实际起飞时间之后的航班
                     TryTransFer(airline, NeedForTrans);
                 }

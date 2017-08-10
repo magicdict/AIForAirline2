@@ -201,39 +201,6 @@ namespace AIForAirline
             }
         }
 
-        //单位时间起降限制
-        private static void UnitCapLimit()
-        {
-            foreach (var typhoon in CheckCondition.TyphoonAirport)
-            {
-                var airlines = AirportIdAirlineDic[typhoon];
-                //台风前修复
-                //5分钟一个航班
-                for (DateTime CheckPoint = Utility.UnitTimeLimitBeforeTyphoonStart;
-                              CheckPoint <= Utility.UnitTimeLimitBeforeTyphoonEnd; CheckPoint = CheckPoint.AddMinutes(5))
-                {
-                    var Cnt = airlines.Count(x =>
-                    {
-                        return x.EventTime == CheckPoint &&
-                               x.EventAirline.FixMethod != enmFixMethod.Cancel &&
-                               x.EventAirline.FixMethod != enmFixMethod.CancelByDirect;
-                    });
-                    if (Cnt > 2) Console.WriteLine(typhoon + " Airlines:" + Cnt + "@" + CheckPoint.ToString(Utility.FullDateFormat));
-                }
-                for (DateTime CheckPoint = Utility.UnitTimeLimitAfterTyphoonStart;
-                              CheckPoint <= Utility.UnitTimeLimitAfterTyphoonEnd; CheckPoint = CheckPoint.AddMinutes(5))
-                {
-                    var Cnt = airlines.Count(x =>
-                    {
-                        return x.EventTime == CheckPoint &&
-                               x.EventAirline.FixMethod != enmFixMethod.Cancel &&
-                               x.EventAirline.FixMethod != enmFixMethod.CancelByDirect;
-                    });
-                    if (Cnt > 2) Console.WriteLine(typhoon + " Airlines:" + Cnt + "@" + CheckPoint.ToString(Utility.FullDateFormat));
-                }
-            }
-        }
-
         static List<Gap> GapList = new List<Gap>();
 
         class Gap

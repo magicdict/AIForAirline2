@@ -207,13 +207,24 @@ namespace AIForAirline
             }
         }
 
+        //超售数
+        public int OverSell
+        {
+            get
+            {
+                var Empty = SeatCnt - GuestCnt - CombinedVoyageGuestCnt;
+                if (Empty >= 0) return 0;
+                return -Empty;
+            }
+        }
+
         //空座位数
         public int EmptySeatCnt
         {
             get
             {
-                //座位数 - 旅客数 - 联程旅客数 - 签转旅客数（转入） 
-                return SeatCnt - GuestCnt - CombinedVoyageGuestCnt - ReceiveEndorseList.Sum(x => x.GuestCnt);
+                //座位数 - 旅客数 - 联程旅客数 - 签转旅客数（转入） 可能出现超售情况
+                return Math.Max(0, SeatCnt - GuestCnt - CombinedVoyageGuestCnt - ReceiveEndorseList.Sum(x => x.GuestCnt));
             }
         }
 
