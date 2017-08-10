@@ -102,11 +102,6 @@ namespace AIForAirline
             MinScore = Math.Min(ScoreCancelSomeSection, MinScore);
             if (IsTry) return (MinScore != double.MaxValue, MinScore);
             CheckCondition.TyphoonAirportRemain = CloneTyphoonAirportRemain;
-            if (Utility.IsUseTyphoonStayRoom)
-            {
-                Console.WriteLine("PlaneID:" + PlaneAirlineList[0].ModifiedPlaneID + "," + MinScore);
-            }
-
             if (Math.Round(MinScore, 0) == Math.Round(ScoreComplexAdjust, 0))
             {
                 Utility.Log("FixByComplexAdjust:" + PlaneAirlineList[0].ModifiedPlaneID);

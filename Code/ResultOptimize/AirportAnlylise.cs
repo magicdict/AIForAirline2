@@ -16,46 +16,16 @@ namespace AIForAirline
 
         public static void Run()
         {
-            foreach (var airline in Solution.AirlineDic.Values)
-            {
-                if (!AirportIdAirlineDic.ContainsKey(airline.StartAirPort)) AirportIdAirlineDic.Add(airline.StartAirPort, new List<AirportInfo>());
-                if (!AirportIdAirlineDic.ContainsKey(airline.EndAirPort)) AirportIdAirlineDic.Add(airline.EndAirPort, new List<AirportInfo>());
-                AirportIdAirlineDic[airline.StartAirPort].Add(new AirportInfo()
-                {
-                    IsTakeOff = true,
-                    EventTime = airline.ModifiedStartTime,
-                    EventAirline = airline
-                });
-                AirportIdAirlineDic[airline.EndAirPort].Add(new AirportInfo()
-                {
-                    IsTakeOff = false,
-                    EventTime = airline.ModifiedEndTime,
-                    EventAirline = airline
-                });
-            }
+            InitAirportIdAirlineDic();
 
-            foreach (var airline in CoreAlgorithm.EmptyFlyList)
-            {
-                if (!AirportIdAirlineDic.ContainsKey(airline.StartAirPort)) AirportIdAirlineDic.Add(airline.StartAirPort, new List<AirportInfo>());
-                if (!AirportIdAirlineDic.ContainsKey(airline.EndAirPort)) AirportIdAirlineDic.Add(airline.EndAirPort, new List<AirportInfo>());
-                AirportIdAirlineDic[airline.StartAirPort].Add(new AirportInfo()
-                {
-                    IsTakeOff = true,
-                    EventTime = airline.ModifiedStartTime,
-                    EventAirline = airline
-                });
-                AirportIdAirlineDic[airline.EndAirPort].Add(new AirportInfo()
-                {
-                    IsTakeOff = false,
-                    EventTime = airline.ModifiedEndTime,
-                    EventAirline = airline
-                });
-            }
-
+            //单位时间容量限制
+            UnitCapLimit();
+            return;
             //修改执飞航班
-            ResultOptimize.TryChangePlane();
+            TryChangePlane();
 
             CancelPairList.Clear();
+
             GetCancelPair();
             //按照机场和重要度进行排序
             CancelPairList.Sort((x, y) =>
@@ -71,7 +41,6 @@ namespace AIForAirline
             });
 
             GapList.Clear();
-            PrintAirportInfo("49");
             foreach (var airportId in AirportIdAirlineDic.Keys)
             {
                 PutCancelToBigGap(airportId);
@@ -189,6 +158,78 @@ namespace AIForAirline
                     CoreAlgorithm.AdjustAirLineList(Solution.PlaneIdAirlineDic[GapItem.PlaneID]);
                     Solution.GetAirlineDicByPlaneId();
                     GapItem.IsFilled = true;
+                }
+            }
+        }
+
+        private static void InitAirportIdAirlineDic()
+        {
+            foreach (var airline in Solution.AirlineDic.Values)
+            {
+                if (!AirportIdAirlineDic.ContainsKey(airline.StartAirPort)) AirportIdAirlineDic.Add(airline.StartAirPort, new List<AirportInfo>());
+                if (!AirportIdAirlineDic.ContainsKey(airline.EndAirPort)) AirportIdAirlineDic.Add(airline.EndAirPort, new List<AirportInfo>());
+                AirportIdAirlineDic[airline.StartAirPort].Add(new AirportInfo()
+                {
+                    IsTakeOff = true,
+                    EventTime = airline.ModifiedStartTime,
+                    EventAirline = airline
+                });
+                AirportIdAirlineDic[airline.EndAirPort].Add(new AirportInfo()
+                {
+                    IsTakeOff = false,
+                    EventTime = airline.ModifiedEndTime,
+                    EventAirline = airline
+                });
+            }
+
+            foreach (var airline in CoreAlgorithm.EmptyFlyList)
+            {
+                if (!AirportIdAirlineDic.ContainsKey(airline.StartAirPort)) AirportIdAirlineDic.Add(airline.StartAirPort, new List<AirportInfo>());
+                if (!AirportIdAirlineDic.ContainsKey(airline.EndAirPort)) AirportIdAirlineDic.Add(airline.EndAirPort, new List<AirportInfo>());
+                AirportIdAirlineDic[airline.StartAirPort].Add(new AirportInfo()
+                {
+                    IsTakeOff = true,
+                    EventTime = airline.ModifiedStartTime,
+                    EventAirline = airline
+                });
+                AirportIdAirlineDic[airline.EndAirPort].Add(new AirportInfo()
+                {
+                    IsTakeOff = false,
+                    EventTime = airline.ModifiedEndTime,
+                    EventAirline = airline
+                });
+            }
+        }
+
+        //单位时间起降限制
+        private static void UnitCapLimit()
+        {
+            foreach (var typhoon in CheckCondition.TyphoonAirport)
+            {
+                var airlines = AirportIdAirlineDic[typhoon];
+                //台风前修复
+                //5分钟一个航班
+                for (DateTime CheckPoint = Utility.UnitTimeLimitBeforeTyphoonStart;
+                              CheckPoint <= Utility.UnitTimeLimitBeforeTyphoonEnd; CheckPoint = CheckPoint.AddMinutes(5))
+                {
+                    var Cnt = airlines.Count(x =>
+                    {
+                        return x.EventTime == CheckPoint &&
+                               x.EventAirline.FixMethod != enmFixMethod.Cancel &&
+                               x.EventAirline.FixMethod != enmFixMethod.CancelByDirect;
+                    });
+                    if (Cnt > 2) Console.WriteLine(typhoon + " Airlines:" + Cnt + "@" + CheckPoint.ToString(Utility.FullDateFormat));
+                }
+                for (DateTime CheckPoint = Utility.UnitTimeLimitAfterTyphoonStart;
+                              CheckPoint <= Utility.UnitTimeLimitAfterTyphoonEnd; CheckPoint = CheckPoint.AddMinutes(5))
+                {
+                    var Cnt = airlines.Count(x =>
+                    {
+                        return x.EventTime == CheckPoint &&
+                               x.EventAirline.FixMethod != enmFixMethod.Cancel &&
+                               x.EventAirline.FixMethod != enmFixMethod.CancelByDirect;
+                    });
+                    if (Cnt > 2) Console.WriteLine(typhoon + " Airlines:" + Cnt + "@" + CheckPoint.ToString(Utility.FullDateFormat));
                 }
             }
         }
@@ -344,18 +385,18 @@ namespace AIForAirline
 
         public static void PrintAirportInfo(string AirportID)
         {
-            var writer = new StreamWriter(Utility.WorkSpaceRoot + "Dataset" + Path.DirectorySeparatorChar + AirportID + ".csv");
+            var writer = new StreamWriter(Utility.ResultPath + AirportID + ".csv");
             writer.WriteLine("航班号,飞机,事件,时间,相关机场,机型,修复方法");
             var airlines = AirportIdAirlineDic[AirportID];
             airlines.Sort((x, y) =>
             {
-                if (x.EventAirline.ModifiedPlaneID == y.EventAirline.ModifiedPlaneID)
+                if (x.EventTime == y.EventTime)
                 {
-                    return x.EventAirline.ModifiedStartTime.CompareTo(y.EventAirline.ModifiedStartTime);
+                    return x.EventAirline.ModifiedPlaneID.CompareTo(y.EventAirline.ModifiedPlaneID);
                 }
                 else
                 {
-                    return x.EventAirline.ModifiedPlaneID.CompareTo(y.EventAirline.ModifiedPlaneID);
+                    return x.EventTime.CompareTo(y.EventTime);
                 }
             });
             for (int i = 0; i < airlines.Count; i++)

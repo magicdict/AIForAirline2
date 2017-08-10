@@ -128,7 +128,7 @@ namespace AIForAirline
                     }
                 }
             }
-            if (false) ResultOptimize.Run();
+            ResultOptimize.Run();
             Utility.Log("Finish!!");
             timer.Stop();
             //输出答案

@@ -238,6 +238,7 @@ namespace AIForAirline
                         //如果新的起飞时间比原来的起飞时间还要早，则直接退出循环
                         if (NewStartTime > airline.ModifiedStartTime)
                         {
+                            if (!airline.IsAllowAdjust) return false;
                             airline.ModifiedStartTime = NewStartTime;
                             if (CheckCondition.IsExistTyphoon(airline).DetailType != ProblemType.None) return false;
                             Utility.Log("[起飞（机场限制）]调整完毕航班：航班ID：" + airline.ID + " 修改起飞时间：" + TempStartTime + "->" + airline.ModifiedStartTime);
@@ -316,6 +317,7 @@ namespace AIForAirline
                 //如果新的起飞时间比原来的起飞时间还要早，则直接退出循环
                 if (NewStartTime > airline.ModifiedStartTime)
                 {
+                    if (!airline.IsAllowAdjust) return false;
                     airline.ModifiedStartTime = NewStartTime;
                     if (CheckCondition.IsExistTyphoon(airline).DetailType != ProblemType.None) return false;
                     Utility.Log("[起飞（机场限制）]调整完毕航班：航班ID：" + airline.ID + " 修改起飞时间：" + TempStartTime + "->" + airline.ModifiedStartTime);
